@@ -1,3 +1,5 @@
+"""Summary
+"""
 import tensorflow as tf
 import tensorflow_probability as tfp
 
@@ -6,6 +8,16 @@ print('TensorFlow', tf.__version__)
 
 @tf.function
 def random_width_shit(image, max_delta=0.2, pad_value=0):
+    """Summary
+    
+    Args:
+        image (TYPE): Description
+        max_delta (float, optional): Description
+        pad_value (int, optional): Description
+    
+    Returns:
+        TYPE: Description
+    """
     image_width = tf.shape(image)[1]
     random_number = tf.random.uniform((), minval=0, maxval=max_delta)
     delta = tf.cast(tf.cast(image_width, dtype=tf.float32)
@@ -23,6 +35,16 @@ def random_width_shit(image, max_delta=0.2, pad_value=0):
 
 @tf.function
 def random_height_shit(image, max_delta=0.2, pad_value=0):
+    """Summary
+    
+    Args:
+        image (TYPE): Description
+        max_delta (float, optional): Description
+        pad_value (int, optional): Description
+    
+    Returns:
+        TYPE: Description
+    """
     image_height = tf.shape(image)[0]
     random_number = tf.random.uniform((), minval=0, maxval=max_delta)
     delta = tf.cast(tf.cast(image_height, dtype=tf.float32)
@@ -40,6 +62,17 @@ def random_height_shit(image, max_delta=0.2, pad_value=0):
 
 @tf.function
 def random_scale(image, min_scale=0.5, max_scale=2, method='bilinear'):
+    """Summary
+    
+    Args:
+        image (TYPE): Description
+        min_scale (float, optional): Description
+        max_scale (int, optional): Description
+        method (str, optional): Description
+    
+    Returns:
+        TYPE: Description
+    """
     scale = tf.random.uniform((), minval=min_scale, maxval=max_scale)
     dims = tf.cast(tf.shape(image), dtype=tf.float32)
     scaled_height = tf.cast(dims[0] * scale, dtype=tf.int32)
@@ -53,6 +86,16 @@ def random_scale(image, min_scale=0.5, max_scale=2, method='bilinear'):
 
 @tf.function
 def random_crop(image, crop_height=256, crop_width=256):
+    """Summary
+    
+    Args:
+        image (TYPE): Description
+        crop_height (int, optional): Description
+        crop_width (int, optional): Description
+    
+    Returns:
+        TYPE: Description
+    """
     dims = tf.shape(image)
     tf.assert_less(crop_height, dims[0])
     tf.assert_less(crop_width, dims[1])
@@ -67,6 +110,16 @@ def random_crop(image, crop_height=256, crop_width=256):
 
 @tf.function
 def cut_out(image, n_holes=2, length=40):
+    """Summary
+    
+    Args:
+        image (TYPE): Description
+        n_holes (int, optional): Description
+        length (int, optional): Description
+    
+    Returns:
+        TYPE: Description
+    """
     dims = tf.shape(image)
     x_min = tf.random.uniform(
         (n_holes,), maxval=dims[1] - length, dtype=tf.int32)
@@ -83,6 +136,14 @@ def cut_out(image, n_holes=2, length=40):
     paddings = tf.stack([pad_right, pad_left, pad_top, pad_bottom], axis=-1)
 
     def pad_tensor(padding):
+        """Summary
+        
+        Args:
+            padding (TYPE): Description
+        
+        Returns:
+            TYPE: Description
+        """
         right = padding[0]
         left = padding[1]
         top = padding[2]
@@ -100,6 +161,15 @@ def cut_out(image, n_holes=2, length=40):
 
 @tf.function
 def random_center_crop(image, target_size=256):
+    """Summary
+    
+    Args:
+        image (TYPE): Description
+        target_size (int, optional): Description
+    
+    Returns:
+        TYPE: Description
+    """
     dims = tf.shape(image)[:2]
     min_dim = tf.reduce_min(dims)
     c_x = tf.cast(dims[1] // 2, dtype=tf.int32)
@@ -121,6 +191,14 @@ def random_center_crop(image, target_size=256):
 
 @tf.function
 def random_channel_shuffle(image):
+    """Summary
+    
+    Args:
+        image (TYPE): Description
+    
+    Returns:
+        TYPE: Description
+    """
     tf.assert_equal(tf.rank(image), 3)
     tf.assert_equal(tf.shape(image)[-1], 3)
     indices = tf.random.shuffle(tf.range(3, dtype=tf.int32))
@@ -132,6 +210,17 @@ def random_channel_shuffle(image):
 
 @tf.function
 def mix_up(images, labels, alpha=0.4, stack_labels=True):
+    """Summary
+    
+    Args:
+        images (TYPE): Description
+        labels (TYPE): Description
+        alpha (float, optional): Description
+        stack_labels (bool, optional): Description
+    
+    Returns:
+        TYPE: Description
+    """
     batch_size = tf.shape(images)[0]
     t = tfp.distributions.Beta(alpha, alpha).sample(batch_size)
     t = tf.reduce_max(t, 1 - t, axis=-1)
@@ -145,6 +234,18 @@ def mix_up(images, labels, alpha=0.4, stack_labels=True):
 
 @tf.function
 def mix_up_loss(loss_fn, y_pred, labels, stacked_labels=True, t=None):
+    """Summary
+    
+    Args:
+        loss_fn (TYPE): Description
+        y_pred (TYPE): Description
+        labels (TYPE): Description
+        stacked_labels (bool, optional): Description
+        t (None, optional): Description
+    
+    Returns:
+        TYPE: Description
+    """
     if stacked_labels:
         labels, mixed_labels = tf.split(labels, num_or_size_splits=2, axis=-1)
         return t * loss_fn(labels, y_pred)
