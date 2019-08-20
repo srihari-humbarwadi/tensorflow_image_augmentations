@@ -172,17 +172,19 @@ def random_center_crop(image, target_size=256):
     """
     dims = tf.shape(image)[:2]
     min_dim = tf.reduce_min(dims)
+    if min_dim - (min_dim % 2) <= target_size - (target_size % 2):
+        resized_image = tf.image.resize_with_pad(image, target_size, target_size)
+        return tf.cast(resized_image, dtype=image.dtype)
     c_x = tf.cast(dims[1] // 2, dtype=tf.int32)
     c_y = tf.cast(dims[0] // 2, dtype=tf.int32)
     min_val = tf.cast(target_size - (target_size % 2), dtype=tf.int32)
-    max_val = tf.cast(min_dim - (target_size % 2), dtype=tf.int32)
+    max_val = tf.cast(min_dim - (min_dim % 2), dtype=tf.int32)
     random_size = tf.random.uniform(
         (), minval=min_val, maxval=max_val, dtype=tf.int32)
     offset_x = c_x - tf.cast(random_size / 2, dtype=tf.int32)
     offset_y = c_y - tf.cast(random_size / 2, dtype=tf.int32)
     cropped_image = tf.image.crop_to_bounding_box(
         image, offset_y, offset_x, random_size, random_size)
-    return cropped_image
     resized_image = tf.cast(tf.image.resize(cropped_image, size=[
                             target_size, target_size], method='bilinear'),
                             dtype=image.dtype)
